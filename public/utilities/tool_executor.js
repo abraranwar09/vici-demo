@@ -138,62 +138,123 @@ async function displayComponent(component_id, message, data) {
         slideContainer.innerHTML += `                    <button class="arrow prev">&#10094;</button>
                     <button class="arrow next">&#10095;</button>`
 
-        function initializeSlider(containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
+        function initializeSlider(sliderSelector) {
+            const sliderContainers = document.querySelectorAll(sliderSelector);
+            const sliderContainer = sliderContainers[sliderContainers.length - 1]; // Select the last slider container
+            if (!sliderContainer) return; // Exit if no slider container is found
 
-            const slider = container.querySelector('.slider');
-            const slides = container.querySelectorAll('.slide');
-            const prevButton = container.querySelector('.prev');
-            const nextButton = container.querySelector('.next');
+            const slider = sliderContainer.querySelector('.slider');
+            const slides = slider.querySelectorAll('.slide');
+            const prevButton = sliderContainer.querySelector('.prev');
+            const nextButton = sliderContainer.querySelector('.next');
+            
             let currentIndex = 0;
-
-            function updateSlider() {
-                slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            let startX;
+            let scrollLeft;
+            let isDragging = false;
+            
+            const slidesToShow = Math.floor(slider.offsetWidth / slides[0].offsetWidth);
+            const maxIndex = slides.length - slidesToShow;
+          
+            function updateSliderPosition() {
+              const offset = -currentIndex * (slides[0].offsetWidth + 8); // 8px is the gap
+              slider.style.transform = `translateX(${offset}px)`;
             }
-
-            function nextSlide() {
-                currentIndex = (currentIndex + 1) % slides.length;
-                updateSlider();
-            }
-
-            function prevSlide() {
-                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-                updateSlider();
-            }
-
-            nextButton.addEventListener('click', nextSlide);
-            prevButton.addEventListener('click', prevSlide);
-
-            // Optional: Add keyboard navigation
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowRight') {
-                    nextSlide();
-                } else if (e.key === 'ArrowLeft') {
-                    prevSlide();
-                }
+          
+            // Button Navigation
+            prevButton.addEventListener('click', () => {
+              currentIndex = Math.max(currentIndex - 1, 0);
+              updateSliderPosition();
             });
-
-            // Optional: Add touch swipe functionality
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            slider.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
+          
+            nextButton.addEventListener('click', () => {
+              currentIndex = Math.min(currentIndex + 1, maxIndex);
+              updateSliderPosition();
             });
-
-            slider.addEventListener('touchend', function(e) {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
+          
+            // Drag to scroll functionality
+            slider.addEventListener('mousedown', (e) => {
+              isDragging = true;
+              slider.style.transition = 'none';
+              startX = e.pageX - slider.offsetLeft;
+              scrollLeft = slider.offsetLeft;
             });
-
-            function handleSwipe() {
-                if (touchStartX - touchEndX > 50) {
-                    nextSlide();
-                } else if (touchEndX - touchStartX > 50) {
-                    prevSlide();
-                }
-            }
+          
+            slider.addEventListener('mouseleave', () => {
+              isDragging = false;
+            });
+          
+            slider.addEventListener('mouseup', () => {
+              isDragging = false;
+              slider.style.transition = 'transform 0.3s ease';
+              
+              // Snap to nearest slide
+              const slideWidth = slides[0].offsetWidth + 8;
+              const movement = scrollLeft - slider.offsetLeft;
+              const snapIndex = Math.round(movement / slideWidth);
+              
+              currentIndex = Math.max(0, Math.min(snapIndex, maxIndex));
+              updateSliderPosition();
+            });
+          
+            slider.addEventListener('mousemove', (e) => {
+              if (!isDragging) return;
+              e.preventDefault();
+              
+              const x = e.pageX - slider.offsetLeft;
+              const walk = (x - startX);
+              const newPosition = Math.max(
+                Math.min(0, walk),
+                -(slides[0].offsetWidth + 8) * maxIndex
+              );
+              
+              slider.style.transform = `translateX(${newPosition}px)`;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            // Touch events for mobile
+            slider.addEventListener('touchstart', (e) => {
+              isDragging = true;
+              slider.style.transition = 'none';
+              startX = e.touches[0].pageX - slider.offsetLeft;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            slider.addEventListener('touchend', () => {
+              isDragging = false;
+              slider.style.transition = 'transform 0.3s ease';
+              
+              // Snap to nearest slide
+              const slideWidth = slides[0].offsetWidth + 8;
+              const movement = scrollLeft - slider.offsetLeft;
+              const snapIndex = Math.round(movement / slideWidth);
+              
+              currentIndex = Math.max(0, Math.min(snapIndex, maxIndex));
+              updateSliderPosition();
+            });
+          
+            slider.addEventListener('touchmove', (e) => {
+              if (!isDragging) return;
+              
+              const x = e.touches[0].pageX - slider.offsetLeft;
+              const walk = (x - startX);
+              const newPosition = Math.max(
+                Math.min(0, walk),
+                -(slides[0].offsetWidth + 8) * maxIndex
+              );
+              
+              slider.style.transform = `translateX(${newPosition}px)`;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            // Update slidesToShow on window resize
+            window.addEventListener('resize', () => {
+              const newSlidesToShow = Math.floor(slider.offsetWidth / slides[0].offsetWidth);
+              if (newSlidesToShow !== slidesToShow) {
+                currentIndex = Math.min(currentIndex, slides.length - newSlidesToShow);
+                updateSliderPosition();
+              }
+            });
         }
 
         initializeSlider('sliderWrapper');
@@ -203,6 +264,320 @@ async function displayComponent(component_id, message, data) {
             "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
         };
 
+    }
+
+    if (componentData.component_name === 'netflix-button') {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.id = 'buttonContainer'
+        document.querySelector('.chat-messages').appendChild(buttonContainer);
+
+        for (const item of data) {
+            console.log(item.button_text);
+
+            const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text);
+            buttonContainer.innerHTML += button;
+        }
+
+        return {
+            "status": "success",
+            "message": `Component displayed for ${component_id}. Simply ask the user to select one of the options above.` 
+        };
+    }
+
+    if (componentData.component_name === 'netflix-grid-button') {
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'grid-buttons-wrapper';
+        buttonWrapper.id = 'buttonWrapper'
+        document.querySelector('.chat-messages').appendChild(buttonWrapper);
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'grid-button-container';
+        buttonContainer.id = 'gridButtonContainer'
+        buttonWrapper.appendChild(buttonContainer);
+
+        for (const item of data) {
+            console.log(item.button_text);
+            const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text);
+            buttonContainer.innerHTML += button;
+        }
+
+        return {
+            "status": "success",
+            "message": `Component displayed for ${component_id}. Simply ask the user to select one of the options above.` 
+        };
+    }
+
+    if (componentData.component_name === 'netflix-thumbnail-slide') {
+        const sliderWrapper = document.createElement('div');
+        sliderWrapper.className = 'slider-wrapper';
+        sliderWrapper.id = 'sliderWrapper'
+        document.querySelector('.chat-messages').appendChild(sliderWrapper);
+
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'slider-container';
+        sliderContainer.id = 'sliderContainer'
+        sliderWrapper.appendChild(sliderContainer);
+
+        sliderContainer.innerHTML += `    
+        <button class="slider-button prev">❮</button>
+        <button class="slider-button next">❯</button>
+        `;
+
+        const slider = document.createElement('div');
+        slider.className = 'slider';
+        slider.id = 'slider'
+        sliderContainer.appendChild(slider);
+
+        for (const item of data) {
+            console.log(item.image);
+            console.log(item.main_text);
+
+            const slideHTML = componentData.component_html
+                .replace(/\[Image\]/g, item.image)
+                .replace(/\[MainText\]/g, item.main_text);
+
+            slider.innerHTML += slideHTML;
+        }
+
+        function initializeSlider(sliderSelector) {
+            const sliderContainers = document.querySelectorAll(sliderSelector);
+            const sliderContainer = sliderContainers[sliderContainers.length - 1]; // Select the last slider container
+            if (!sliderContainer) return; // Exit if no slider container is found
+
+            const slider = sliderContainer.querySelector('.slider');
+            const slides = slider.querySelectorAll('.slide');
+            const prevButton = sliderContainer.querySelector('.prev');
+            const nextButton = sliderContainer.querySelector('.next');
+            
+            let currentIndex = 0;
+            let startX;
+            let scrollLeft;
+            let isDragging = false;
+            
+            const slidesToShow = Math.floor(slider.offsetWidth / slides[0].offsetWidth);
+            const maxIndex = slides.length - slidesToShow;
+          
+            function updateSliderPosition() {
+              const offset = -currentIndex * (slides[0].offsetWidth + 8); // 8px is the gap
+              slider.style.transform = `translateX(${offset}px)`;
+            }
+          
+            // Button Navigation
+            prevButton.addEventListener('click', () => {
+              currentIndex = Math.max(currentIndex - 1, 0);
+              updateSliderPosition();
+            });
+          
+            nextButton.addEventListener('click', () => {
+              currentIndex = Math.min(currentIndex + 1, maxIndex);
+              updateSliderPosition();
+            });
+          
+            // Drag to scroll functionality
+            slider.addEventListener('mousedown', (e) => {
+              isDragging = true;
+              slider.style.transition = 'none';
+              startX = e.pageX - slider.offsetLeft;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            slider.addEventListener('mouseleave', () => {
+              isDragging = false;
+            });
+          
+            slider.addEventListener('mouseup', () => {
+              isDragging = false;
+              slider.style.transition = 'transform 0.3s ease';
+              
+              // Snap to nearest slide
+              const slideWidth = slides[0].offsetWidth + 8;
+              const movement = scrollLeft - slider.offsetLeft;
+              const snapIndex = Math.round(movement / slideWidth);
+              
+              currentIndex = Math.max(0, Math.min(snapIndex, maxIndex));
+              updateSliderPosition();
+            });
+          
+            slider.addEventListener('mousemove', (e) => {
+              if (!isDragging) return;
+              e.preventDefault();
+              
+              const x = e.pageX - slider.offsetLeft;
+              const walk = (x - startX);
+              const newPosition = Math.max(
+                Math.min(0, walk),
+                -(slides[0].offsetWidth + 8) * maxIndex
+              );
+              
+              slider.style.transform = `translateX(${newPosition}px)`;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            // Touch events for mobile
+            slider.addEventListener('touchstart', (e) => {
+              isDragging = true;
+              slider.style.transition = 'none';
+              startX = e.touches[0].pageX - slider.offsetLeft;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            slider.addEventListener('touchend', () => {
+              isDragging = false;
+              slider.style.transition = 'transform 0.3s ease';
+              
+              // Snap to nearest slide
+              const slideWidth = slides[0].offsetWidth + 8;
+              const movement = scrollLeft - slider.offsetLeft;
+              const snapIndex = Math.round(movement / slideWidth);
+              
+              currentIndex = Math.max(0, Math.min(snapIndex, maxIndex));
+              updateSliderPosition();
+            });
+          
+            slider.addEventListener('touchmove', (e) => {
+              if (!isDragging) return;
+              
+              const x = e.touches[0].pageX - slider.offsetLeft;
+              const walk = (x - startX);
+              const newPosition = Math.max(
+                Math.min(0, walk),
+                -(slides[0].offsetWidth + 8) * maxIndex
+              );
+              
+              slider.style.transform = `translateX(${newPosition}px)`;
+              scrollLeft = slider.offsetLeft;
+            });
+          
+            // Update slidesToShow on window resize
+            window.addEventListener('resize', () => {
+              const newSlidesToShow = Math.floor(slider.offsetWidth / slides[0].offsetWidth);
+              if (newSlidesToShow !== slidesToShow) {
+                currentIndex = Math.min(currentIndex, slides.length - newSlidesToShow);
+                updateSliderPosition();
+              }
+            });
+        }
+
+        initializeSlider('.slider-container');
+
+        return {
+            "status": "success",
+            "message": `Component displayed for ${component_id}. Ask the user to select one of the options above.` 
+        };
+    }
+
+    if (componentData.component_name === 'netflix-detail-slide') {
+        const sliderWrapper = document.createElement('div');
+        sliderWrapper.className = 'details-slider-wrapper';
+        sliderWrapper.id = 'sliderWrapper'
+        document.querySelector('.chat-messages').appendChild(sliderWrapper);
+
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'details-slider-container';
+        sliderContainer.id = 'sliderContainer'
+        sliderWrapper.appendChild(sliderContainer);
+
+        const slider = document.createElement('div');
+        slider.className = 'details-slider';
+        slider.id = 'slider'
+        sliderContainer.appendChild(slider);
+
+       
+
+        for (const item of data) {
+            console.log(item.image);
+            console.log(item.description);
+
+            const slideHTML = componentData.component_html
+                .replace(/\[Image\]/g, item.image)
+                .replace(/\[Description\]/g, item.description);
+
+            slider.innerHTML += slideHTML;
+        }
+
+        sliderContainer.innerHTML += `
+        <div class="details-buttons">
+            <a href="https://netflix.com" class="details-action-button">Watch Now</a>
+            <a href="https://netflix.com" class="details-action-button">Visit our Website</a>
+        </div>
+        `;
+
+        function initializeDetailsSlider(sliderSelector) {
+            const sliderContainers = document.querySelectorAll(sliderSelector);
+            const sliderContainer = sliderContainers[sliderContainers.length - 1]; // Select the last slider container
+            if (!sliderContainer) return; // Exit if no slider container is found
+
+            const slider = sliderContainer.querySelector('.details-slider');
+            const slides = slider.querySelectorAll('.details-slide');
+            const prevButtons = sliderContainer.querySelectorAll('.prev');
+            const nextButtons = sliderContainer.querySelectorAll('.next');
+            
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+          
+            function updateSlider() {
+              slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+          
+            function nextSlide() {
+              currentIndex = (currentIndex + 1) % totalSlides;
+              updateSlider();
+            }
+          
+            function prevSlide() {
+              currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+              updateSlider();
+            }
+          
+            // Event Listeners
+            prevButtons.forEach(button => button.addEventListener('click', prevSlide));
+            nextButtons.forEach(button => button.addEventListener('click', nextSlide));
+          
+            // Touch Events
+            let touchStartX = 0;
+            let touchEndX = 0;
+          
+            slider.addEventListener('touchstart', (e) => {
+              touchStartX = e.touches[0].clientX;
+            });
+          
+            slider.addEventListener('touchend', (e) => {
+              touchEndX = e.changedTouches[0].clientX;
+              if (touchStartX - touchEndX > 50) {
+                nextSlide();
+              }
+              if (touchStartX - touchEndX < -50) {
+                prevSlide();
+              }
+            });
+        }
+
+        // Initialize the slider
+        initializeDetailsSlider('.details-slider-wrapper');
+
+        return {
+            "status": "success",
+            "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
+        };
+    }
+
+    if (componentData.component_name === 'netflix-cta-button') { 
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.id = 'buttonContainer'
+        document.querySelector('.chat-messages').appendChild(buttonContainer);
+
+        for (const item of data) {
+            console.log(item.button_text);
+            const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text).replace(/\[ButtonLink\]/g, item.button_link);
+            buttonContainer.innerHTML += button;
+        }
+
+        return {
+            "status": "success",
+            "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
+        };
     }
 }
 
