@@ -273,11 +273,10 @@ Do not use markdown in your response.
 
 
 async function sendMessage(message) {
-    
     // Step 1: Get session_id from local storage
     const session_id = localStorage.getItem('session_id');
     const userId = localStorage.getItem('userId'); // Assuming user_id is stored in local storage
-    
+
     // Step 2: Send a request to the AI
     const requestBody = {
         session_id: session_id,
@@ -289,6 +288,7 @@ async function sendMessage(message) {
     };
 
     try {
+        console.log('Sending message:', requestBody);
         const response = await fetch('/ai/chat', {
             method: 'POST',
             headers: {
@@ -298,12 +298,13 @@ async function sendMessage(message) {
         });
 
         const data = await response.json();
+        console.log('Received response:', data);
 
         if (data.finish_reason === 'stop') {
-            console.log(data);
+            console.log('Response finished with reason: stop');
             return data;
         } else if (data.finish_reason === 'tool_calls') {
-            console.log(data);
+            console.log('Response finished with reason: tool_calls');
             return data;
             // await handleToolCalls(data);
         }
@@ -330,28 +331,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to handle sending message
     async function handleSendMessage(message) {
         if (message) {
+            console.log('Handling message:', message);
             if (message === 'Start') {
-                //display nothing on start message  
+                console.log('Start message received, no display action taken.');
             } else {
                 displayMessage(message, 'user');  
+                console.log('Displayed user message:', message);
             }
 
             // Create and display the skeleton loader
             const skeletonLoader = document.createElement('div');
             skeletonLoader.className = 'skeleton-loader';
             document.querySelector('.chat-messages').appendChild(skeletonLoader);
+            console.log('Skeleton loader added to chat messages.');
 
-            const data = await sendMessage(message);
+            try {
+                const data = await sendMessage(message);
+                console.log('Data received from sendMessage:', data);
 
-            if (data.finish_reason === 'tool_calls') {
-                console.log(data);
-                console.log('its a tool call');
-                                
-                await handleToolCalls(data, skeletonLoader);
-            } else if (data.finish_reason === 'stop') {
-                // Remove the skeleton loader
+                if (data.finish_reason === 'tool_calls') {
+                    console.log('Handling tool calls:', data);
+                    await handleToolCalls(data, skeletonLoader);
+                } else if (data.finish_reason === 'stop') {
+                    // Remove the skeleton loader
+                    skeletonLoader.remove();
+                    console.log('Skeleton loader removed.');
+                    displayMessage(data.response, 'ai');
+                    console.log('Displayed AI response:', data.response);
+                }
+            } catch (error) {
+                console.error('Error handling message:', error);
                 skeletonLoader.remove();
-                displayMessage(data.response, 'ai');
+                console.log('Skeleton loader removed due to error.');
             }
         }
     }
@@ -364,23 +375,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Event listener for send button click
-    sendButton.addEventListener('click', () => {
-        const message = messageInput.value.trim();
-        if (message) {
-            messageInput.value = '';
-            handleSendMessage(message);
-        }
-    });
+    sendButton.addEventListener('click', sendMessageHandler);
+    sendButton.addEventListener('touchend', sendMessageHandler);
 
     // Event listener for Enter key press
     messageInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents new line in textarea
-            const message = messageInput.value.trim();
-            if (message) {
-                messageInput.value = '';
-                handleSendMessage(message);
-            }
+            sendMessageHandler();
         }
     });
+
+    function sendMessageHandler() {
+        const message = messageInput.value.trim();
+        if (message) {
+            messageInput.value = '';
+            handleSendMessage(message);
+        }
+    }
 });

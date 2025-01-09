@@ -384,25 +384,23 @@ document.addEventListener('DOMContentLoaded', () => {
     handleSendMessage('Start');
     var firstMessage = document.getElementsByClassName('user-message')[0];
 
+// Event listener for send button click
+sendButton.addEventListener('click', sendMessageHandler);
+sendButton.addEventListener('touchend', sendMessageHandler);
 
-    // Event listener for send button click
-    sendButton.addEventListener('click', () => {
-        const message = messageInput.value.trim();
-        if (message) {
-            messageInput.value = '';
-            handleSendMessage(message);
-        }
-    });
+// Event listener for Enter key press
+messageInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevents new line in textarea
+        sendMessageHandler();
+    }
+});
 
-    // Event listener for Enter key press
-    messageInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevents new line in textarea
-            const message = messageInput.value.trim();
-            if (message) {
-                messageInput.value = '';
-                handleSendMessage(message);
-            }
-        }
-    });
+function sendMessageHandler() {
+    const message = messageInput.value.trim();
+    if (message) {
+        messageInput.value = '';
+        handleSendMessage(message);
+    }
+}
 });
