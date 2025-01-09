@@ -21,6 +21,8 @@ async function displayComponent(component_id, message, data) {
     console.log(componentData);
 
     displayMessage(message, 'ai');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
 
     if (componentData.component_name === 'button-component') {
         const buttonContainer = document.createElement('div');
@@ -36,6 +38,8 @@ async function displayComponent(component_id, message, data) {
             buttonContainer.innerHTML += button;
 
         }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         return {
             "status": "success",
@@ -57,6 +61,8 @@ async function displayComponent(component_id, message, data) {
             buttonContainer.innerHTML += button;
 
         }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         return {
             "status": "success",
@@ -96,6 +102,8 @@ async function displayComponent(component_id, message, data) {
 
         }
 
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
         return {
             "status": "success",
             "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time and ask them to visit the website. Nothing more.` 
@@ -134,6 +142,8 @@ async function displayComponent(component_id, message, data) {
 
             slider.innerHTML += infoHTML;
         }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         slideContainer.innerHTML += `                    <button class="arrow prev">&#10094;</button>
                     <button class="arrow next">&#10095;</button>`
@@ -259,6 +269,8 @@ async function displayComponent(component_id, message, data) {
 
         initializeSlider('sliderWrapper');
 
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
         return {
             "status": "success",
             "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
@@ -278,6 +290,8 @@ async function displayComponent(component_id, message, data) {
             const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text);
             buttonContainer.innerHTML += button;
         }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         return {
             "status": "success",
@@ -301,6 +315,8 @@ async function displayComponent(component_id, message, data) {
             const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text);
             buttonContainer.innerHTML += button;
         }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         return {
             "status": "success",
@@ -461,6 +477,8 @@ async function displayComponent(component_id, message, data) {
 
         initializeSlider('.slider-container');
 
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
         return {
             "status": "success",
             "message": `Component displayed for ${component_id}. Ask the user to select one of the options above.` 
@@ -555,6 +573,8 @@ async function displayComponent(component_id, message, data) {
 
         // Initialize the slider
         initializeDetailsSlider('.details-slider-wrapper');
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         return {
             "status": "success",
@@ -669,6 +689,8 @@ async function displayComponent(component_id, message, data) {
       // Initialize the slider
       initializeDetailsSlider('.details-slider-wrapper');
 
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
       return {
           "status": "success",
           "message": `Component displayed for ${component_id}. Ask the user to explore what you have displayed above. Nothing more.` 
@@ -764,6 +786,8 @@ async function displayComponent(component_id, message, data) {
     // Initialize the slider
     initializeDetailsSlider('.details-slider-wrapper');
 
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     return {
         "status": "success",
         "message": `Component displayed for ${component_id}. Ask the user to explore what you have displayed above. Nothing more.` 
@@ -782,11 +806,16 @@ async function displayComponent(component_id, message, data) {
           buttonContainer.innerHTML += button;
       }
 
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
       return {
           "status": "success",
           "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
       };
   }
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
 }
 
 
