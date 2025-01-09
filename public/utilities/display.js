@@ -11,7 +11,7 @@ function displayMessage(content, messageType) {
         avatarContainer.classList.add('ai-message-avatar');
         
         const avatarImage = document.createElement('img');
-        avatarImage.src = './assets/netflix-icon.jpg';
+        avatarImage.src = './assets/logo.svg';
         avatarImage.alt = 'AI Avatar';
         avatarImage.classList.add('avatar-image');
         

@@ -579,6 +579,214 @@ async function displayComponent(component_id, message, data) {
             "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
         };
     }
+
+    if (componentData.component_name === 'nissan-details-slider') {
+      console.log('nissan-details-slider');
+      const sliderWrapper = document.createElement('div');
+      sliderWrapper.className = 'details-slider-wrapper';
+      sliderWrapper.id = 'sliderWrapper'
+      document.querySelector('.chat-messages').appendChild(sliderWrapper);
+
+      const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'details-slider-container';
+      sliderContainer.id = 'sliderContainer'
+      sliderWrapper.appendChild(sliderContainer);
+
+      const slider = document.createElement('div');
+      slider.className = 'details-slider';
+      slider.id = 'slider'
+      sliderContainer.appendChild(slider);
+
+     
+
+      for (const item of data) {
+          console.log(item.image);
+          console.log(item.description);
+
+          const slideHTML = componentData.component_html
+              .replace(/\[Image\]/g, item.image)
+              .replace(/\[Description\]/g, item.description);
+
+          slider.innerHTML += slideHTML;
+      }
+
+      sliderContainer.innerHTML += `
+      <div onclick="handleSendMessage('View Gallery')" class="details-action-button">
+          View Gallery
+      </div>
+      `;
+
+      function initializeDetailsSlider(sliderSelector) {
+          const sliderContainers = document.querySelectorAll(sliderSelector);
+          const sliderContainer = sliderContainers[sliderContainers.length - 1]; // Select the last slider container
+          if (!sliderContainer) return; // Exit if no slider container is found
+
+          const slider = sliderContainer.querySelector('.details-slider');
+          const slides = slider.querySelectorAll('.details-slide');
+          const prevButtons = sliderContainer.querySelectorAll('.prev');
+          const nextButtons = sliderContainer.querySelectorAll('.next');
+          
+          let currentIndex = 0;
+          const totalSlides = slides.length;
+        
+          function updateSlider() {
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+          }
+        
+          function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateSlider();
+          }
+        
+          function prevSlide() {
+            currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            updateSlider();
+          }
+        
+          // Event Listeners
+          prevButtons.forEach(button => button.addEventListener('click', prevSlide));
+          nextButtons.forEach(button => button.addEventListener('click', nextSlide));
+        
+          // Touch Events
+          let touchStartX = 0;
+          let touchEndX = 0;
+        
+          slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+          });
+        
+          slider.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].clientX;
+            if (touchStartX - touchEndX > 50) {
+              nextSlide();
+            }
+            if (touchStartX - touchEndX < -50) {
+              prevSlide();
+            }
+          });
+      }
+
+      // Initialize the slider
+      initializeDetailsSlider('.details-slider-wrapper');
+
+      return {
+          "status": "success",
+          "message": `Component displayed for ${component_id}. Ask the user to explore what you have displayed above. Nothing more.` 
+      };
+  }
+
+  if (componentData.component_name === 'nissan-details-slider-two') {
+    console.log('nissan-details-slider');
+    const sliderWrapper = document.createElement('div');
+    sliderWrapper.className = 'details-slider-wrapper';
+    sliderWrapper.id = 'sliderWrapper'
+    document.querySelector('.chat-messages').appendChild(sliderWrapper);
+
+    const sliderContainer = document.createElement('div');
+    sliderContainer.className = 'details-slider-container';
+    sliderContainer.id = 'sliderContainer'
+    sliderWrapper.appendChild(sliderContainer);
+
+    const slider = document.createElement('div');
+    slider.className = 'details-slider';
+    slider.id = 'slider'
+    sliderContainer.appendChild(slider);
+
+   
+
+    for (const item of data) {
+        console.log(item.image);
+        console.log(item.description);
+
+        const slideHTML = componentData.component_html
+            .replace(/\[Image\]/g, item.image)
+            .replace(/\[Description\]/g, item.description);
+
+        slider.innerHTML += slideHTML;
+    }
+
+    sliderContainer.innerHTML += `
+    <div onclick="handleSendMessage('Book A Test Drive Now')" class="details-action-button">
+        Book A Test Drive Now
+    </div>
+    `;
+
+    function initializeDetailsSlider(sliderSelector) {
+        const sliderContainers = document.querySelectorAll(sliderSelector);
+        const sliderContainer = sliderContainers[sliderContainers.length - 1]; // Select the last slider container
+        if (!sliderContainer) return; // Exit if no slider container is found
+
+        const slider = sliderContainer.querySelector('.details-slider');
+        const slides = slider.querySelectorAll('.details-slide');
+        const prevButtons = sliderContainer.querySelectorAll('.prev');
+        const nextButtons = sliderContainer.querySelectorAll('.next');
+        
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+      
+        function updateSlider() {
+          slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+      
+        function nextSlide() {
+          currentIndex = (currentIndex + 1) % totalSlides;
+          updateSlider();
+        }
+      
+        function prevSlide() {
+          currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+          updateSlider();
+        }
+      
+        // Event Listeners
+        prevButtons.forEach(button => button.addEventListener('click', prevSlide));
+        nextButtons.forEach(button => button.addEventListener('click', nextSlide));
+      
+        // Touch Events
+        let touchStartX = 0;
+        let touchEndX = 0;
+      
+        slider.addEventListener('touchstart', (e) => {
+          touchStartX = e.touches[0].clientX;
+        });
+      
+        slider.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].clientX;
+          if (touchStartX - touchEndX > 50) {
+            nextSlide();
+          }
+          if (touchStartX - touchEndX < -50) {
+            prevSlide();
+          }
+        });
+    }
+
+    // Initialize the slider
+    initializeDetailsSlider('.details-slider-wrapper');
+
+    return {
+        "status": "success",
+        "message": `Component displayed for ${component_id}. Ask the user to explore what you have displayed above. Nothing more.` 
+    };
+}
+
+  if (componentData.component_name === 'netflix-cta-button') { 
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'button-container';
+      buttonContainer.id = 'buttonContainer'
+      document.querySelector('.chat-messages').appendChild(buttonContainer);
+
+      for (const item of data) {
+          console.log(item.button_text);
+          const button = componentData.component_html.replace(/\[ButtonText\]/g, item.button_text).replace(/\[ButtonLink\]/g, item.button_link);
+          buttonContainer.innerHTML += button;
+      }
+
+      return {
+          "status": "success",
+          "message": `Component displayed for ${component_id}. The journey is complete. Thank the user for their time. Nothing more.` 
+      };
+  }
 }
 
 
