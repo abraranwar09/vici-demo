@@ -299,7 +299,8 @@ body, html {
     border: none;
     padding: 20px 10px;
     cursor: pointer;
-    z-index: 2;
+    z-index: 10; /* Ensure buttons are above other elements */
+    display: block; /* Ensure buttons are displayed */
   }
 
   .prev { left: 0; }
@@ -405,3 +406,68 @@ body, html {
   .details-action-button:hover {
     opacity: 0.9;
   }
+
+  .nissan-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+.nissan-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.nissan-slide {
+    min-width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.nissan-slide h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.nissan-slide img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+}
+
+.nissan-slide .price {
+    font-size: 1.8rem;
+    color: #cc0000;
+    margin-top: 1rem;
+}
+
+.nissan-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10; /* Ensure buttons are above other elements */
+    display: block; /* Ensure buttons are displayed */
+}
+
+.nissan-prev {
+    left: 20px;
+}
+
+.nissan-next {
+    right: 20px;
+}
+
+.nissan-nav-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+}

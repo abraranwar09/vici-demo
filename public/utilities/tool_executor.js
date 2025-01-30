@@ -631,8 +631,8 @@ async function displayComponent(component_id, message, data) {
       }
 
       sliderContainer.innerHTML += `
-      <div onclick="handleSendMessage('View Gallery')" class="details-action-button">
-          View Gallery
+      <div onclick="handleSendMessage('Configure the Nissan Magnite')" class="details-action-button">
+          Configure your own Nissan Magnite
       </div>
       `;
 
@@ -814,7 +814,107 @@ async function displayComponent(component_id, message, data) {
       };
   }
 
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  if (componentData.component_name === 'nissan-slide-two') {
+    console.log('nissan-slider-component');
+
+    const container = document.createElement('div');
+    container.className = 'nissan-slider-container';
+    container.id = 'nissanSliderContainer'
+    document.querySelector('.chat-messages').appendChild(container);
+
+    const slider = document.createElement('div');
+    slider.className = 'nissan-slider';
+    slider.id = 'nissanSlider'
+    container.appendChild(slider);
+
+    slider.innerHTML += `
+        <button class="nissan-nav-button nissan-prev" id="nissanPrev">‹</button>
+        <button class="nissan-nav-button nissan-next" id="nissanNext">›</button>
+    `;
+
+    for (const item of data) {
+      console.log(item.main_text);
+      console.log(item.image);
+      console.log(item.description);
+
+      const slideHTML = componentData.component_html
+          .replace(/\[MainText\]/g, item.main_text)
+          .replace(/\[Image\]/g, item.image)
+          .replace(/\[Description\]/g, item.description);
+
+      slider.innerHTML += slideHTML;
+    }
+
+    class NissanSlider {
+      constructor(container) {
+          this.container = container;
+          this.slider = container.querySelector('.nissan-slider');
+          this.slides = container.querySelectorAll('.nissan-slide');
+          this.prevButton = container.querySelector('.nissan-prev');
+          this.nextButton = container.querySelector('.nissan-next');
+          this.currentIndex = 0;
+          
+          this.init();
+      }
+      
+      init() {
+          // Add event listeners
+          this.prevButton.addEventListener('click', () => this.slide('prev'));
+          this.nextButton.addEventListener('click', () => this.slide('next'));
+          
+          // Optional: Add touch support
+          let startX;
+          let isDragging = false;
+          
+          this.slider.addEventListener('touchstart', (e) => {
+              startX = e.touches[0].clientX;
+              isDragging = true;
+          });
+          
+          this.slider.addEventListener('touchmove', (e) => {
+              if (!isDragging) return;
+              const currentX = e.touches[0].clientX;
+              const diff = startX - currentX;
+              
+              if (Math.abs(diff) > 50) { // Minimum swipe distance
+                  this.slide(diff > 0 ? 'next' : 'prev');
+                  isDragging = false;
+              }
+          });
+          
+          this.slider.addEventListener('touchend', () => {
+              isDragging = false;
+          });
+      }
+      
+      slide(direction) {
+          if (direction === 'next') {
+              this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+          } else {
+              this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+          }
+          
+          const offset = -this.currentIndex * 100;
+          this.slider.style.transform = `translateX(${offset}%)`;
+
+          // Ensure buttons remain visible
+          this.prevButton.style.display = 'block';
+          this.nextButton.style.display = 'block';
+      }
+    }
+    
+    const sliders = document.querySelectorAll('.nissan-slider-container');
+    sliders.forEach(slider => new NissanSlider(slider));
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return {
+      "status": "success",
+      "message": `Component displayed for ${component_id}. Ask the user to look through the slider above.` 
+    };
+  }
+
+  
 
 }
 
