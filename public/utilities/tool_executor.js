@@ -914,6 +914,34 @@ async function displayComponent(component_id, message, data) {
     };
   }
 
+  if (componentData.component_name === 'nissan-iframe') {
+    console.log('nissan-iframe');
+    const iframeContainer = document.createElement('div');
+    iframeContainer.className = 'iframe-container';
+    iframeContainer.id = 'iframeContainer'
+    document.querySelector('.chat-messages').appendChild(iframeContainer);
+
+    for (const item of data) {
+      console.log(item.main_text);
+      const iframe = componentData.component_html.replace(/\[mainText\]/g, item.main_text);
+      console.log('iframe', iframe);
+      iframeContainer.innerHTML += iframe;
+    }
+
+    iframeContainer.innerHTML += `
+    <div onclick="handleSendMessage('Book A Test Drive Now')" class="details-action-button">
+        Book A Test Drive Now
+    </div>
+    `;
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return {
+      "status": "success",
+      "message": `Component displayed for ${component_id}. Tell the user to enjoy configuring their Nissan Magnite.` 
+    };
+  }
+
   
 
 }

@@ -38,6 +38,7 @@ body, html {
     color: white;
     align-self: flex-end;
     margin-left: auto;
+    border-radius: 8px;
 }
 .ai-message {
     position: relative; /* Position relative to allow absolute positioning of the arrow */
