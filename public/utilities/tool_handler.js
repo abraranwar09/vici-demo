@@ -15,6 +15,9 @@ async function handleToolCalls(data, skeletonLoader) {
                 case 'display_component':
                     functionResponse = await displayComponent(args.component_id, args.message, args.data);
                     break;
+                case 'show_carousel':
+                    functionResponse = await showCarousel(args.message);
+                    break;
                 default:
                     console.warn(`Unhandled function name: ${functionName}`);
                     return null;

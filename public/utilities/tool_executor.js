@@ -728,8 +728,8 @@ async function displayComponent(component_id, message, data) {
     }
 
     sliderContainer.innerHTML += `
-    <div onclick="handleSendMessage('Book A Test Drive Now')" class="details-action-button">
-        Book A Test Drive Now
+    <div onclick="handleSendMessage('Configure the Nissan Magnite')" class="details-action-button">
+        Configure your own Nissan Magnite
     </div>
     `;
 
@@ -947,6 +947,108 @@ async function displayComponent(component_id, message, data) {
 }
 
 
+async function showCarousel(message) {
 
+  displayMessage(message, 'ai');
 
+  const carouselContainer = document.createElement('div');
+  carouselContainer.className = 'carousel-container';
+  carouselContainer.id = 'carouselContainer'
+  document.querySelector('.chat-messages').appendChild(carouselContainer);
+  
 
+  carouselContainer.innerHTML += `
+  <div class="carousel">
+            <div class="carousel-track">
+                <div class="carousel-slide" onclick="handleSendMessage('Features')">
+                    <img src="./assets/feat.jpg?height=400&width=600" alt="Features">
+                    <div class="slide-title">Features</div>
+                </div>
+                <div class="carousel-slide" onclick="handleSendMessage('Exterior')">
+                    <img src="./assets/ext.jpg?height=400&width=600" alt="Exterior">
+                    <div class="slide-title">Exterior</div>
+                </div>
+                <div class="carousel-slide" onclick="handleSendMessage('Interior')">
+                    <img src="./assets/int.avif?height=400&width=600" alt="Interior">
+                    <div class="slide-title">Interior</div>
+                </div>
+                <!-- <div class="carousel-slide">
+                    <img src="/placeholder.svg?height=400&width=600" alt="Mountain Vista">
+                    <div class="slide-title">Misty Mountain Morning</div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="/placeholder.svg?height=400&width=600" alt="Mountain Peak">
+                    <div class="slide-title">Rocky Mountain Peak</div>
+                </div> -->
+            </div>
+            <div class="carousel-nav">
+                <button class="nav-button prev" onclick="moveSlide(-1)">←</button>
+                <div class="carousel-dots">
+                    <button class="dot" onclick="setSlide(0)"></button>
+                    <button class="dot active" onclick="setSlide(1)"></button>
+                    <button class="dot" onclick="setSlide(2)"></button>
+                </div>
+                <button class="nav-button next" onclick="moveSlide(1)">→</button>
+            </div>
+        </div>
+  `
+
+  let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.carousel-slide').length;
+
+        function updateSlidePositions() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            slides.forEach((slide, index) => {
+                const offset = (index - currentSlide) * 150;
+                slide.style.transform = `translateX(${offset}px) scale(${index === currentSlide ? 1.2 : 0.8})`;
+                slide.style.zIndex = index === currentSlide ? 5 : 0;
+                slide.style.opacity = Math.abs(index - currentSlide) > 2 ? 0 : 0.6;
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                    slide.style.opacity = 1;
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function moveSlide(n) {
+            currentSlide = (currentSlide + n + totalSlides) % totalSlides;
+            updateSlides();
+        }
+
+        window.moveSlide = moveSlide;
+
+        function setSlide(n) {
+            currentSlide = n;
+            updateSlides();
+        }
+
+        window.setSlide = setSlide;
+
+        function updateSlides() {
+            updateSlidePositions();
+            updateDots();
+        }
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Initialize
+        setTimeout(() => {
+          updateSlidePositions();
+        }, 1000);
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        return {
+          "status": "success",
+          "message": `The slider has been displayed. Ask the user to look through the options above.` 
+        };
+
+  
+}

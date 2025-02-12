@@ -1,5 +1,5 @@
 const temperature = 0.5;
-
+ 
 const today = new Date();
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 console.log('User Timezone:', userTimeZone);
@@ -84,6 +84,7 @@ Price: Starting at $56,520
 `
 
 const magniteFeatures = `
+Exterior Features:
 Feature:40.64 (16 INCH) CM Diamond cut alloy wheels 
 Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/accessories/Nissan-Gellry-Page_6_3200x1800PX.jpg.ximg.l_12_m.smart.jpg
 
@@ -96,6 +97,7 @@ Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/ac
 Feature: Integrated Spoiler with LED HMSL | ROOF Rails | Chrome Beltline
 Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/accessories/Nissan-Gellry-Page_7_3200x1800PX.jpg.ximg.l_12_m.smart.jpg
 
+Interior Features:
 Feature: High Visibility Angle
 Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/gallery/Nissan-Magnite-Gallery-Page_21.jpg.ximg.m_12_m.smart.jpg
 
@@ -113,7 +115,6 @@ Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/ga
 
 Feature: Large Cabinet
 Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/gallery/Nissan-Magnite-Gallery-Page_26.jpg.ximg.l_12_m.smart.jpg
-
 
 Feature: Height Adjustable Seats (Driver)
 Image: https://www-asia.nissan-cdn.net/content/dam/Nissan/in/vehicles/magnite/gallery/Nissan-Magnite-Gallery-Page_25.jpg.ximg.l_12_m.smart.jpg
@@ -199,7 +200,14 @@ image (car image)
 
 If the user sends a car name back from the slider, give a short description of the car and the price from your car list. Also provide a red(#b7040c) button saying Shop Now with a link to nissan usa. Make sure the button is on a new line. 
 
-If the user selects "Learn more about the Magnite" display the features of magnite using your detail slider component with the display_component tool. Send the following data array:
+If the user selects "Learn more about the Magnite" display your carousel with the show_carousel tool. Send a message with the carousel asking the user to pick between Interior, Exterior or Features to continue learning more about the magnite.
+
+
+If interior or exterior is selected, show the features of magnite relevant to the selected option using your detail slider component with the display_component tool. Send the following data array:
+description (feature name with one line added from you GPT)
+image (feature image)
+
+If features is selected, show ALL the features of magnite using your detail slider component with the display_component tool. Send the following data array:
 description (feature name with one line added from you GPT)
 image (feature image)
 
@@ -285,29 +293,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to handle sending message
     async function handleSendMessage(message) {
         if (message) {
+            console.log('Handling message:', message);
             if (message === 'Start') {
-                //display nothing on start message  
+                console.log('Start message received, no display action taken.');
             } else {
                 displayMessage(message, 'user');  
+                console.log('Displayed user message:', message);
             }
 
             // Create and display the skeleton loader
             const skeletonLoader = document.createElement('div');
             skeletonLoader.className = 'skeleton-loader';
             document.querySelector('.chat-messages').appendChild(skeletonLoader);
+            console.log('Skeleton loader added to chat messages.');
 
+            // Show the overlay
+            document.getElementById('interactionOverlay').style.display = 'block';
 
-            const data = await sendMessage(message);
+            try {
+                const data = await sendMessage(message);
+                console.log('Data received from sendMessage:', data);
 
-            if (data.finish_reason === 'tool_calls') {
-                console.log(data);
-                console.log('its a tool call');
-                                
-                await handleToolCalls(data, skeletonLoader);
-            } else if (data.finish_reason === 'stop') {
-                // Remove the skeleton loader
+                if (data.finish_reason === 'tool_calls') {
+                    console.log('Handling tool calls:', data);
+                    await handleToolCalls(data, skeletonLoader);
+                } else if (data.finish_reason === 'stop') {
+                    // Remove the skeleton loader
+                    skeletonLoader.remove();
+                    console.log('Skeleton loader removed.');
+                    displayMessage(data.response, 'ai');
+                    console.log('Displayed AI response:', data.response);
+                }
+            } catch (error) {
+                console.error('Error handling message:', error);
                 skeletonLoader.remove();
-                displayMessage(data.response, 'ai');
+                console.log('Skeleton loader removed due to error.');
+            } finally {
+                // Hide the overlay
+                document.getElementById('interactionOverlay').style.display = 'none';
             }
         }
     }

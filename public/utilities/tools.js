@@ -74,6 +74,24 @@ const tools = [
             },
         },
     },
+    {
+        type: "function",
+        function: {
+            name: "show_carousel",
+            description: "Shows a carousel.",
+            parameters: {
+                type: "object",
+                properties: {
+                    message: {
+                        type: "string",
+                        description: "The message to display with the carousel.",
+                    },
+                },
+                required: ["message"],
+                additionalProperties: false,
+            },
+        },
+    },
 ];
 
 // Make tools available globally
