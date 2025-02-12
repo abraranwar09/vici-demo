@@ -519,6 +519,7 @@ body, html {
 
 .splash-main-image {
     width: 100%; /* Adjust size as needed */
+    max-width: 600px;
     margin-bottom: 10vh;
     margin-top: 10vh;
 }
